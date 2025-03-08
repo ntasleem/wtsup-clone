@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Clone</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 30%;
+            background-color: #ffffff;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 10px;
+            background-color: #00a884;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .profile img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .profile .details {
+            font-size: 16px;
+        }
+        .settings {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #f0f2f5;
+            text-align: center;
+        }
+        .settings button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #00a884;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .settings button:hover {
+            background-color: #007f67;
+        }
+        .contacts {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .contact {
+            padding: 10px;
+            border-bottom: 1px solid #f0f2f5;
+            cursor: pointer;
+        }
+        .contact:hover {
+            background-color: #f5f5f5;
+        }
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 10px;
+            background-color: #00a884;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        .messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #e5ddd5;
+        }
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 10px;
+            max-width: 60%;
+        }
+        .message.sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+        }
+        .message.received {
+            background-color: #ffffff;
+            align-self: flex-start;
+        }
+        .input-area {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            background-color: #f0f2f5;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        .input-area button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #00a884;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .input-area button:hover {
+            background-color: #007f67;
+        }
+        #settingsModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        #settingsModal button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #00a884;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #settingsModal button:hover {
+            background-color: #007f67;
+        }
+    </style>
+</head>
+<body>
+    <!-- Settings Modal -->
+    <div id="settingsModal">
+        <h3>Settings</h3>
+        <button onclick="openModal('profile')">Change Profile Picture</button>
+        <button onclick="closeSettingsModal()">Close</button>
+    </div>
+
+    <div class="app">
+        <div class="sidebar">
+            <div class="header">WhatsApp Clone</div>
+            <div class="profile">
+                <img id="profilePic" src="https://via.placeholder.com/50" alt="User Logo">
+                <div class="details">
+                    <div><strong>User Name</strong></div>
+                    <div style="font-size: 14px; color: gray;">Online</div>
+                </div>
+            </div>
+            <div class="settings">
+                <button onclick="openSettingsModal()">Settings</button>
+            </div>
+            <div class="contacts" id="contacts">
+                <div class="contact" onclick="selectContact('Contact 1')">Contact 1</div>
+                <div class="contact" onclick="selectContact('Contact 2')">Contact 2</div>
+                <div class="contact" onclick="selectContact('Contact 3')">Contact 3</div>
+            </div>
+        </div>
+        <div class="chat">
+            <div class="chat-header" id="chatHeader">Chat with Contact</div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Type a message">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const settingsModal = document.getElementById('settingsModal');
+        const messages = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const chatHeader = document.getElementById('chatHeader');
+
+        let activeContact = 'Contact 1';
+
+        function selectContact(contact) {
+            activeContact = contact;
+            chatHeader.textContent = `Chat with ${contact}`;
+            messages.innerHTML = ''; // Clear previous messages
+        }
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'sent');
+                messageElement.textContent = text;
+                messages.appendChild(messageElement);
+                messageInput.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        function openSettingsModal() {
+            settingsModal.style.display = 'block';
+        }
+
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+
+        function openModal(type) {
+            closeSettingsModal();
+            if (type === 'profile') {
+                alert('Open Profile Picture Modal');
+            }
+        }
+    </script>
+</body>
+</html>
+  
